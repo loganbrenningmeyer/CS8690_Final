@@ -8,7 +8,7 @@ from diffusers import (
     UniPCMultistepScheduler,
 )
 
-img_path = "images/0000002008-1_0.tif"
+img_path = "inputs/0000002022-1_1.tif"
 src_img   = Image.open(img_path).convert("RGB")
 
 # ----- HED edge map (structure lock) -----
