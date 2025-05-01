@@ -1,3 +1,5 @@
+print("Loading libraries...")
+
 from controlnet_aux import HEDdetector
 import cv2, torch
 from PIL import Image
@@ -8,8 +10,12 @@ from diffusers import (
     UniPCMultistepScheduler,
 )
 
+print("Loading image...")
+
 img_path = "inputs/0000002022-1_1.tif"
 src_img   = Image.open(img_path).convert("RGB")
+
+print("Creating HED edge map...")
 
 # ----- HED edge map (structure lock) -----
 hed = HEDdetector.from_pretrained('lllyasviel/Annotators')
@@ -30,6 +36,8 @@ pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
             torch_dtype=torch.float16
 )
 
+print("Initializing diffusion pipeline...")
+
 pipe.load_ip_adapter(
     "h94/IP-Adapter",          # repo root  (public)
     "models",    # sub-folder with the weights
@@ -39,7 +47,7 @@ pipe.load_ip_adapter(
 pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
 pipe.to("cuda")
 
-
+print("Running diffusion...")
 
 generator = torch.Generator(device="cuda").manual_seed(42)   # reproducible
 
