@@ -8,6 +8,9 @@ from diffusers import (
     UniPCMultistepScheduler,
 )
 
+print("CUDA available:", torch.cuda.is_available())
+print("GPU count:   ", torch.cuda.device_count())
+
 img_path = "inputs/0000002022-1_1.tif"
 src_img   = Image.open(img_path).convert("RGB")
 
