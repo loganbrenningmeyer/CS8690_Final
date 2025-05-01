@@ -68,4 +68,4 @@ out = pipe(
 
 print("Saving realistic image...")
 
-out.save("/mnt/project/outputs/satellite_realistic.png")
+out.save("outputs/satellite_realistic.png")
