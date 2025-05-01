@@ -8,9 +8,6 @@ from diffusers import (
     UniPCMultistepScheduler,
 )
 
-print("CUDA available:", torch.cuda.is_available())
-print("GPU count:   ", torch.cuda.device_count())
-
 img_path = "inputs/0000002022-1_1.tif"
 src_img   = Image.open(img_path).convert("RGB")
 
@@ -61,4 +58,6 @@ out = pipe(
         generator          = generator
 ).images[0]
 
-out.save("outputs/satellite_realistic.png")
+print("Saving realistic image...")
+
+out.save("/mnt/project/outputs/satellite_realistic.png")
