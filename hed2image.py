@@ -59,13 +59,13 @@ out = pipe(
         image              = src_img,
         control_image      = seg_img, 
         ip_adapter_image   = ref_img,     #color reference
-        strength           = 0.1,        # denoise — keep geometry!
-        num_inference_steps= 75,
+        strength           = 0.05,        # denoise — keep geometry!
+        num_inference_steps= 100,
         guidance_scale     = 8,           # CFG
         control_guidance_start = 0.0,  # HED on from the first step …
-        control_guidance_end   = 0.95,  # … but disabled after 50 % of steps
-        controlnet_conditioning_scale=1.0,  # weights we chose earlier
-        ip_adapter_conditioning_scale=1.0,
+        control_guidance_end   = 1.0,  # … but disabled after 50 % of steps
+        controlnet_conditioning_scale=1.2,  # weights we chose earlier
+        ip_adapter_conditioning_scale=0.8,
         generator          = generator
 ).images[0]
 
