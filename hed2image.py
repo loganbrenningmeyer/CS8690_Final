@@ -15,6 +15,9 @@ print("Loading image...")
 img_path = "inputs/0000002022-1_1.tif"
 src_img   = Image.open(img_path).convert("RGB")
 
+real_path = "references/real_satellite.png"
+ref_img = Image.open(real_path).convert("RGB")
+
 print("Creating HED edge map...")
 
 # ----- HED edge map (structure lock) -----
@@ -60,7 +63,7 @@ out = pipe(
         negative_prompt    = "colorful shadows, neon tint, cartoon texture, oversaturated",
         image              = src_img,
         control_image      = hed_map, 
-        ip_adapter_image   = src_img,     #color reference
+        ip_adapter_image   = ref_img,     #color reference
         strength           = 0.25,        # denoise — keep geometry!
         num_inference_steps= 32,
         guidance_scale     = 6,           # CFG
@@ -72,4 +75,4 @@ out = pipe(
 
 print("Saving realistic image...")
 
-out.save("outputs/satellite_realistic.png")
+out.save("outputs/real_ref.png")

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: logan-debugger        # rename as you like
+spec:
+  containers:
+  - name: pvc-debugger
+    image: gitlab-registry.nrp-nautilus.io/nrp/scientific-images/python:cuda-v1.5.0
+    resources:
+      requests:
+        memory: "16Gi"
+      limits:
+        memory: "16Gi"
+    securityContext:
+      runAsUser: 0
+    command: ["/bin/bash","-c","sleep 9000"]
+    volumeMounts:
+    - mountPath: "/mnt/project"
+      name: control-net        # must match the volume name below
+  volumes:
+  - name: control-net
+    persistentVolumeClaim:
+      claimName: control-net   # the PVC you created with create_pvc.yaml
+  restartPolicy: Never
