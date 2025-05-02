@@ -32,9 +32,8 @@ hed_id = "lllyasviel/sd-controlnet-hed"
 control_hed = ControlNetModel.from_pretrained(
     hed_id, 
     torch_dtype=torch.float16,
-    device_map="auto",
     low_cpu_mem_usage=True
-)
+).to("cuda")
 
 pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
     base_id,
