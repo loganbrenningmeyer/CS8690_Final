@@ -54,21 +54,21 @@ print("Running diffusion...")
 generator = torch.Generator(device="cuda").manual_seed(42)   # reproducible
 
 out = pipe(
-        prompt             = "high-resolution satellite photograph of Earth, realistic lighting, natural terrain colors, true-to-life vegetation and water tones, sharp detail",
-        negative_prompt    = "colorful shadows, neon tint, cartoon texture, oversaturated",
+        prompt             = "high-resolution satellite photograph of Earth, realistic atmospheric haze, subtle sensor noise, natural shadow gradients, true-to-life water reflections, minimal compression artifacts",
+        negative_prompt    = "oversharpened edges, painterly, cartoon texture, bright neon hues, blur artifacts",
         image              = src_img,
         control_image      = seg_img, 
         ip_adapter_image   = ref_img,     #color reference
-        strength           = 0.05,        # denoise — keep geometry!
+        strength           = 0.08,        # denoise — keep geometry!
         num_inference_steps= 100,
         guidance_scale     = 8,           # CFG
         control_guidance_start = 0.0,  # HED on from the first step …
         control_guidance_end   = 1.0,  # … but disabled after 50 % of steps
-        controlnet_conditioning_scale=1.2,  # weights we chose earlier
-        ip_adapter_conditioning_scale=0.8,
+        controlnet_conditioning_scale=1.0,  # weights we chose earlier
+        ip_adapter_conditioning_scale=1.3,
         generator          = generator
 ).images[0]
 
 print("Saving realistic image...")
 
-out.save("outputs/seg_test_5.png")
+out.save("outputs/seg_test_6.png")
