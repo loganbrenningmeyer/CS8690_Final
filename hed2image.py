@@ -71,4 +71,4 @@ out = pipe(
 
 print("Saving realistic image...")
 
-out.save("outputs/seg_test_4.png")
+out.save("outputs/seg_test_5.png")
