@@ -10,37 +10,32 @@ from diffusers import (
     UniPCMultistepScheduler,
 )
 
-print("Loading image...")
+print("Loading images...")
 
-img_path = "inputs/0000002022-1_1.tif"
+img_path = "inputs/0000002193-1_0.tif"
 src_img   = Image.open(img_path).convert("RGB")
 
 real_path = "references/real_satellite.png"
 ref_img = Image.open(real_path).convert("RGB")
 
-print("Creating HED edge map...")
+seg_path = "seg/0000002193-1_0.tif"
+seg_img = Image.open(seg_path).convert("RGB")
 
-# ----- HED edge map (structure lock) -----
-hed = HEDdetector.from_pretrained('lllyasviel/Annotators').to("cuda")
-
-hed_map = hed(src_img)                        # returns a PIL image, 512×512 by default
-hed_map = cv2.GaussianBlur(
-            cv2.cvtColor(np.array(hed_map), cv2.COLOR_RGB2GRAY),
-            (0, 0), sigmaX=3)                 # soft-blur: mid-control only needs hints
-hed_map = Image.fromarray(hed_map)
-
+# ----------
+# Control via Segmentation Map
+# ----------
 base_id = "runwayml/stable-diffusion-v1-5"
-hed_id = "lllyasviel/sd-controlnet-hed"
+seg_id = "lllyasviel/sd-controlnet-seg"
 
-control_hed = ControlNetModel.from_pretrained(
-    hed_id, 
+control_seg = ControlNetModel.from_pretrained(
+    seg_id,
     torch_dtype=torch.float16,
     low_cpu_mem_usage=True
 ).to("cuda")
 
 pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
     base_id,
-    controlnet=control_hed,    # Multi-ControlNet
+    controlnet=control_seg,    # Multi-ControlNet
     torch_dtype=torch.float16
 ).to("cuda")
 
@@ -62,7 +57,7 @@ out = pipe(
         prompt             = "high-resolution satellite photograph of Earth, realistic lighting, natural terrain colors, true-to-life vegetation and water tones, sharp detail",
         negative_prompt    = "colorful shadows, neon tint, cartoon texture, oversaturated",
         image              = src_img,
-        control_image      = hed_map, 
+        control_image      = seg_img, 
         ip_adapter_image   = ref_img,     #color reference
         strength           = 0.1,        # denoise — keep geometry!
         num_inference_steps= 75,
@@ -75,4 +70,4 @@ out = pipe(
 
 print("Saving realistic image...")
 
-out.save("outputs/satellite_realistic.png")
+out.save("outputs/seg_test.png")
