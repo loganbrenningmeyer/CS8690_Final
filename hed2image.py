@@ -59,15 +59,16 @@ out = pipe(
         image              = src_img,
         control_image      = seg_img, 
         ip_adapter_image   = ref_img,     #color reference
-        strength           = 0.1,        # denoise — keep geometry!
+        strength           = 0.25,        # denoise — keep geometry!
         num_inference_steps= 75,
         guidance_scale     = 8,           # CFG
         control_guidance_start = 0.0,  # HED on from the first step …
-        control_guidance_end   = 0.9,  # … but disabled after 50 % of steps
-        controlnet_conditioning_scale=1.0,  # weights we chose earlier
+        control_guidance_end   = 0.75,  # … but disabled after 50 % of steps
+        controlnet_conditioning_scale=0.8,  # weights we chose earlier
+        ip_adapter_conditioning_scale=1.0,
         generator          = generator
 ).images[0]
 
 print("Saving realistic image...")
 
-out.save("outputs/seg_test.png")
+out.save("outputs/seg_test_2.png")
