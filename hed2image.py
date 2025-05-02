@@ -54,8 +54,8 @@ print("Running diffusion...")
 generator = torch.Generator(device="cuda").manual_seed(42)   # reproducible
 
 out = pipe(
-        prompt             = "high-resolution satellite photograph of Earth, realistic atmospheric haze, subtle sensor noise, natural shadow gradients, true-to-life water reflections, minimal compression artifacts",
-        negative_prompt    = "oversharpened edges, painterly, cartoon texture, bright neon hues, blur artifacts",
+        prompt             = "satellite photo, google earth, muted colors, realistic",
+        negative_prompt    = "oversharpened edges, painterly, cartoon texture, bright neon hues",
         image              = src_img,
         control_image      = seg_img, 
         ip_adapter_image   = ref_img,     #color reference
