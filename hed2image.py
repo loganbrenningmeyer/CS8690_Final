@@ -59,20 +59,21 @@ print("Running diffusion...")
 generator = torch.Generator(device="cuda").manual_seed(42)   # reproducible
 
 out = pipe(
-        prompt             = "satellite photo",          # or a short 1-2 word tag like "satellite photo"
+        prompt             = "high-resolution satellite photograph of Earth, realistic lighting, natural terrain colors, true-to-life vegetation and water tones, sharp detail",
         negative_prompt    = "colorful shadows, neon tint, cartoon texture, oversaturated",
         image              = src_img,
         control_image      = hed_map, 
         ip_adapter_image   = ref_img,     #color reference
         strength           = 0.25,        # denoise — keep geometry!
-        num_inference_steps= 32,
+        num_inference_steps= 50,
         guidance_scale     = 6,           # CFG
         control_guidance_start = 0.0,  # HED on from the first step …
         control_guidance_end   = 0.75,  # … but disabled after 50 % of steps
         controlnet_conditioning_scale=0.35,  # weights we chose earlier
+        ip_adapter_conditioning_scale=1.0,
         generator          = generator
 ).images[0]
 
 print("Saving realistic image...")
 
-out.save("outputs/real_ref.png")
+out.save("outputs/real_ref_2.png")
