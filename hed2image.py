@@ -38,9 +38,8 @@ control_hed = ControlNetModel.from_pretrained(
 pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
     base_id,
     controlnet=control_hed,    # Multi-ControlNet
-    torch_dtype=torch.float16,
-    device_map="auto"
-)
+    torch_dtype=torch.float16
+).to("cuda")
 
 print("Initializing diffusion pipeline...")
 
