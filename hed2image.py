@@ -68,12 +68,11 @@ out = pipe(
         num_inference_steps= 50,
         guidance_scale     = 6,           # CFG
         control_guidance_start = 0.0,  # HED on from the first step …
-        control_guidance_end   = 0.75,  # … but disabled after 50 % of steps
-        controlnet_conditioning_scale=0.35,  # weights we chose earlier
-        ip_adapter_conditioning_scale=1.0,
+        control_guidance_end   = 0.9,  # … but disabled after 50 % of steps
+        controlnet_conditioning_scale=0.5,  # weights we chose earlier
         generator          = generator
 ).images[0]
 
 print("Saving realistic image...")
 
-out.save("outputs/real_ref_2.png")
+out.save("outputs/satellite_realistic.png")
