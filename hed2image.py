@@ -18,7 +18,8 @@ src_img   = Image.open(img_path).convert("RGB")
 print("Creating HED edge map...")
 
 # ----- HED edge map (structure lock) -----
-hed = HEDdetector.from_pretrained('lllyasviel/Annotators')
+hed = HEDdetector.from_pretrained('lllyasviel/Annotators').to("cuda")
+
 hed_map = hed(src_img)                        # returns a PIL image, 512×512 by default
 hed_map = cv2.GaussianBlur(
             cv2.cvtColor(np.array(hed_map), cv2.COLOR_RGB2GRAY),
@@ -28,12 +29,18 @@ hed_map = Image.fromarray(hed_map)
 base_id = "runwayml/stable-diffusion-v1-5"
 hed_id = "lllyasviel/sd-controlnet-hed"
 
-control_hed = ControlNetModel.from_pretrained(hed_id , torch_dtype=torch.float16)
+control_hed = ControlNetModel.from_pretrained(
+    hed_id, 
+    torch_dtype=torch.float16,
+    device_map="auto",
+    low_cpu_mem_usage=True
+)
 
 pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
-            base_id,
-            controlnet=control_hed,    # Multi-ControlNet
-            torch_dtype=torch.float16
+    base_id,
+    controlnet=control_hed,    # Multi-ControlNet
+    torch_dtype=torch.float16,
+    device_map="auto"
 )
 
 print("Initializing diffusion pipeline...")
@@ -45,7 +52,6 @@ pipe.load_ip_adapter(
     weight=1               # adapter strength
 )
 pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
-pipe.to("cuda")
 
 print("Running diffusion...")
 
