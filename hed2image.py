@@ -66,13 +66,13 @@ generator = torch.Generator(device="cuda").manual_seed(42)   # reproducible
 params = {
     'prompt': 'satellite photo, google earth, muted colors, realistic',
     'negative_prompt': 'oversharpened edges, painterly, cartoon texture, bright neon hues',
-    'strength': 0.1,
+    'strength': 0.25,
     'num_inference_steps': 100,
     'guidance_scale': 8,
     'control_guidance_start': 0.0,
-    'control_guidance_end': 0.8,
-    'controlnet_conditioning_scale': 0.9,
-    'ip_adapter_conditioning_scale': 1.3,
+    'control_guidance_end': 0.7,
+    'controlnet_conditioning_scale': 0.8,
+    'ip_adapter_conditioning_scale': 2.0,
 }
 
 out = pipe(
@@ -96,7 +96,7 @@ out = pipe(
 # ----------
 print("Saving realistic image & params...")
 
-run_name = 'seg_test_9'
+run_name = 'seg_test_10'
 out_dir = os.path.join('outputs', run_name)
 
 # -- Create output directory
