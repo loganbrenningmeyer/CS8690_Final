@@ -66,12 +66,12 @@ generator = torch.Generator(device="cuda").manual_seed(42)   # reproducible
 params = {
     'prompt': 'satellite photo, google earth, muted colors, realistic',
     'negative_prompt': 'oversharpened edges, painterly, cartoon texture, bright neon hues',
-    'strength': 0.08,
+    'strength': 0.1,
     'num_inference_steps': 100,
     'guidance_scale': 8,
     'control_guidance_start': 0.0,
-    'control_guidance_end': 1.0,
-    'controlnet_conditioning_scale': 1.0,
+    'control_guidance_end': 0.8,
+    'controlnet_conditioning_scale': 0.9,
     'ip_adapter_conditioning_scale': 1.3,
 }
 
