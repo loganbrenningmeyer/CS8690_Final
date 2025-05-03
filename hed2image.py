@@ -1,7 +1,7 @@
 print("Loading libraries...")
 
 from controlnet_aux import HEDdetector
-import cv2, torch
+import torch
 from PIL import Image
 import numpy as np
 from diffusers import (
@@ -9,17 +9,22 @@ from diffusers import (
     StableDiffusionControlNetImg2ImgPipeline,
     UniPCMultistepScheduler,
 )
+import json
+import os
 
+# ----------
+# Load source/control/reference images
+# ----------
 print("Loading images...")
 
 img_path = "inputs/0000002193-1_0.tif"
-src_img   = Image.open(img_path).convert("RGB")
+src_img   = Image.open(img_path)
 
-real_path = "references/real_satellite.png"
-ref_img = Image.open(real_path).convert("RGB")
+real_path = "references/JAX_427_009_013_RIGHT_RGB.tif"
+ref_img = Image.open(real_path)
 
 seg_path = "seg/0000002193-1_0.tif"
-seg_img = Image.open(seg_path).convert("RGB")
+seg_img = Image.open(seg_path)
 
 # ----------
 # Control via Segmentation Map
@@ -33,13 +38,16 @@ control_seg = ControlNetModel.from_pretrained(
     low_cpu_mem_usage=True
 ).to("cuda")
 
+# ----------
+# Load diffusion pipeline
+# ----------
+print("Initializing diffusion pipeline & IP-Adapter...")
+
 pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
     base_id,
     controlnet=control_seg,    # Multi-ControlNet
     torch_dtype=torch.float16
 ).to("cuda")
-
-print("Initializing diffusion pipeline...")
 
 pipe.load_ip_adapter(
     "h94/IP-Adapter",          # repo root  (public)
@@ -49,26 +57,54 @@ pipe.load_ip_adapter(
 )
 pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
 
-print("Running diffusion...")
-
+# -- Create Torch random Generator
 generator = torch.Generator(device="cuda").manual_seed(42)   # reproducible
 
+# ----------
+# Diffuse realistic image
+# ----------
+params = {
+    'prompt': 'satellite photo, google earth, muted colors, realistic',
+    'negative_prompt': 'oversharpened edges, painterly, cartoon texture, bright neon hues',
+    'strength': 0.08,
+    'num_inference_steps': 100,
+    'guidance_scale': 8,
+    'control_guidance_start': 0.0,
+    'control_guidance_end': 1.0,
+    'controlnet_conditioning_scale': 1.0,
+    'ip_adapter_conditioning_scale': 1.3,
+}
+
 out = pipe(
-        prompt             = "satellite photo, google earth, muted colors, realistic",
-        negative_prompt    = "oversharpened edges, painterly, cartoon texture, bright neon hues",
-        image              = src_img,
-        control_image      = seg_img, 
-        ip_adapter_image   = ref_img,     #color reference
-        strength           = 0.08,        # denoise — keep geometry!
-        num_inference_steps= 100,
-        guidance_scale     = 8,           # CFG
-        control_guidance_start = 0.0,  # HED on from the first step …
-        control_guidance_end   = 1.0,  # … but disabled after 50 % of steps
-        controlnet_conditioning_scale=1.0,  # weights we chose earlier
-        ip_adapter_conditioning_scale=1.3,
-        generator          = generator
+        prompt                        = params['prompt'],
+        negative_prompt               = params['negative_prompt'],
+        strength                      = params['strength'],        # denoise — keep geometry!
+        num_inference_steps           = params['num_inference_steps'],
+        guidance_scale                = params['guidance_scale'],           # CFG
+        control_guidance_start        = params['control_guidance_start'],  # HED on from the first step …
+        control_guidance_end          = params['control_guidance_end'],  # … but disabled after 50 % of steps
+        controlnet_conditioning_scale = params['controlnet_conditioning_scale'],  # weights we chose earlier
+        ip_adapter_conditioning_scale = params['ip_adapter_conditioning_scale'],
+        image                         = src_img,
+        control_image                 = seg_img, 
+        ip_adapter_image              = ref_img,     #color reference
+        generator                     = generator
 ).images[0]
 
-print("Saving realistic image...")
+# ----------
+# Save image and parameters to JSON
+# ----------
+print("Saving realistic image & params...")
 
-out.save("outputs/seg_test_7.png")
+run_name = 'seg_test_8'
+out_dir = os.path.join('outputs', run_name)
+
+# -- Create output directory
+os.makedirs(out_dir, exist_ok=True)
+
+# -- Save image
+out.save(os.path.join(out_dir, f'{run_name}.tif'), format='TIFF')
+
+# -- Save params to JSON
+with open(os.path.join(out_dir, f'params.json'), 'w') as f:
+    json.dump(params, f, indent=4)
