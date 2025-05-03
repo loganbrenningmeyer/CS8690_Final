@@ -23,7 +23,7 @@ src_img   = Image.open(img_path)
 real_path = "references/JAX_427_009_013_RIGHT_RGB.tif"
 ref_img = Image.open(real_path)
 
-seg_path = "seg/0000002193-1_0.tif"
+seg_path = "gt_ss_mask/0000002193-1_0.tif"
 seg_img = Image.open(seg_path)
 
 # ----------
