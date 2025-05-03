@@ -64,8 +64,8 @@ generator = torch.Generator(device="cuda").manual_seed(42)   # reproducible
 # Diffuse realistic image
 # ----------
 params = {
-    'prompt': 'satellite photo, google earth, muted colors, realistic',
-    'negative_prompt': 'oversharpened edges, painterly, cartoon texture, bright neon hues',
+    'prompt': 'asphalt micro-texture, concrete rooftops with slight staining, photogrammetric sharpness, realistic aerial perspective',
+    'negative_prompt': 'warped perspective,repeated tiling patterns,checkerboard texture, pixelated aliasing',
     'strength': 0.25,
     'num_inference_steps': 100,
     'guidance_scale': 8,
@@ -96,7 +96,7 @@ out = pipe(
 # ----------
 print("Saving realistic image & params...")
 
-run_name = 'seg_test_10'
+run_name = 'seg_test_11'
 out_dir = os.path.join('outputs', run_name)
 
 # -- Create output directory
