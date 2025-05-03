@@ -96,7 +96,7 @@ out = pipe(
 # ----------
 print("Saving realistic image & params...")
 
-run_name = 'seg_test_8'
+run_name = 'seg_test_9'
 out_dir = os.path.join('outputs', run_name)
 
 # -- Create output directory
