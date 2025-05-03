@@ -66,9 +66,9 @@ generator = torch.Generator(device="cuda").manual_seed(42)   # reproducible
 params = {
     'prompt': 'asphalt micro-texture, concrete rooftops with slight staining, photogrammetric sharpness, realistic aerial perspective',
     'negative_prompt': 'warped perspective,repeated tiling patterns,checkerboard texture, pixelated aliasing',
-    'strength': 0.4,
+    'strength': 0.25,
     'num_inference_steps': 100,
-    'guidance_scale': 8,
+    'guidance_scale': 6,
     'control_guidance_start': 0.0,
     'control_guidance_end': 1.0,
     'controlnet_conditioning_scale': 0.8,
@@ -96,7 +96,7 @@ out = pipe(
 # ----------
 print("Saving realistic image & params...")
 
-run_name = 'high_params'
+run_name = 'med_params'
 out_dir = os.path.join('outputs', run_name)
 
 # -- Create output directory
