@@ -1,5 +1,7 @@
+print("Loading libraries...")
+
 from controlnet_aux import HEDdetector
-import cv2, torch
+import torch
 from PIL import Image
 import numpy as np
 from diffusers import (
@@ -21,25 +23,17 @@ src_img   = Image.open(img_path)
 real_path = "references/JAX_427_009_013_RIGHT_RGB.tif"
 ref_img = Image.open(real_path)
 
-# ----------
-# HED edge map
-# ----------
-hed = HEDdetector.from_pretrained('lllyasviel/Annotators').to("cuda")
-
-hed_img = hed(src_img)                        # returns a PIL image, 512×512 by default
-hed_img = cv2.GaussianBlur(
-            cv2.cvtColor(np.array(hed_img), cv2.COLOR_RGB2GRAY),
-            (0, 0), sigmaX=3)                 # soft-blur: mid-control only needs hints
-hed_img = Image.fromarray(hed_img)
+seg_path = "seg/0000002193-1_0.tif"
+seg_img = Image.open(seg_path)
 
 # ----------
-# Control via HED Map
+# Control via Segmentation Map
 # ----------
 base_id = "runwayml/stable-diffusion-v1-5"
-hed_id = "lllyasviel/sd-controlnet-hed"
+seg_id = "lllyasviel/sd-controlnet-seg"
 
-control_hed = ControlNetModel.from_pretrained(
-    hed_id, 
+control_seg = ControlNetModel.from_pretrained(
+    seg_id,
     torch_dtype=torch.float16,
     low_cpu_mem_usage=True
 ).to("cuda")
@@ -51,7 +45,7 @@ print("Initializing diffusion pipeline & IP-Adapter...")
 
 pipe = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
     base_id,
-    controlnet=control_hed,    # Multi-ControlNet
+    controlnet=control_seg,    # Multi-ControlNet
     torch_dtype=torch.float16
 ).to("cuda")
 
@@ -92,7 +86,7 @@ out = pipe(
         controlnet_conditioning_scale = params['controlnet_conditioning_scale'],  # weights we chose earlier
         ip_adapter_conditioning_scale = params['ip_adapter_conditioning_scale'],
         image                         = src_img,
-        control_image                 = hed_img, 
+        control_image                 = seg_img, 
         ip_adapter_image              = ref_img,     #color reference
         generator                     = generator
 ).images[0]
@@ -100,19 +94,16 @@ out = pipe(
 # ----------
 # Save image and parameters to JSON
 # ----------
-print("Saving realistic image/HED image & params...")
+print("Saving realistic image & params...")
 
-run_name = 'hed_test'
+run_name = 'med_params'
 out_dir = os.path.join('outputs', run_name)
 
 # -- Create output directory
 os.makedirs(out_dir, exist_ok=True)
 
-# -- Save realistic image
+# -- Save image
 out.save(os.path.join(out_dir, f'{run_name}.tif'), format='TIFF')
-
-# -- Save HED image
-hed_img.save(os.path.join(out_dir, 'hed.png'))
 
 # -- Save params to JSON
 with open(os.path.join(out_dir, f'params.json'), 'w') as f:

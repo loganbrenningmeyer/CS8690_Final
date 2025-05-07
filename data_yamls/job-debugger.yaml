@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: Job 
+metadata:
+  name: controlnet-run
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: controlnet
+        image: gitlab-registry.nrp-nautilus.io/nrp/scientific-images/python:cuda-v1.5.0
+        # adjust these to suit your cluster’s quotas
+        resources:
+          requests:
+            cpu: "4"
+            memory: "32Gi"
+            nvidia.com/gpu: 1
+          limits:
+            cpu: "8"
+            memory: "32Gi"
+            nvidia.com/gpu: 1
+        # run as root so we can write to CephFS without chown dance:
+        securityContext:
+          runAsUser: 0
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          set -euo pipefail
+          cd /mnt/data
+
+          echo "Installing Python deps..."
+          pip install \
+            controlnet_aux \
+            diffusers \
+            accelerate \
+            opencv-python-headless \
+            pillow \
+            numpy \
+            tqdm
+
+          echo "Launching diffusion script..."
+          python seg_image_datasets.py
+
+        volumeMounts:
+        - name: synth-data
+          mountPath: /mnt/data
+        - name: controlnet-output
+          mountPath: /mnt/controlNet-output
+
+      volumes:
+      - name: synth-data
+        persistentVolumeClaim:
+          claimName: synth-data
+
+      - name: controlnet-output
+        persistentVolumeClaim:
+          claimName: controlnet-output
