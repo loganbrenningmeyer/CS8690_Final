@@ -1,3 +1,5 @@
+print("Loading libraries...")
+
 from controlnet_aux import HEDdetector
 import cv2, torch
 from PIL import Image
